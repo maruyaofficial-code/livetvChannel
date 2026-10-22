@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090b10">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="MaruyaLiveTV — browse and play authorized live TV streams.">
+<title>Live TV Channels — MaruyaLiveTV</title>
+<script src="https://cdn.jsdelivr.net/npm/shaka-player@4.12.6/dist/shaka-player.compiled.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#090b10;--card:#11151d;--line:#293241;--text:#f8fafc;--muted:#94a3b8;--primary:#f43f5e;--primary2:#fb7185}
+*{box-sizing:border-box}html{scroll-padding-top:70px}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,#3b0b1c 0,transparent 32%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--primary2);outline-offset:3px}.wrap{width:min(1500px,calc(100% - 32px));margin:auto}header{border-bottom:1px solid var(--line);background:rgba(9,11,16,.92);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}.nav{min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:1.2rem;font-weight:900;letter-spacing:-.04em}.brand span{color:var(--primary2)}main{padding:30px 0 60px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(244,63,94,.45);border-radius:4px;background:rgba(244,63,94,.08);color:var(--primary2);font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.18em}h1{font-size:clamp(2.3rem,5vw,4.7rem);line-height:.98;letter-spacing:-.07em;margin:16px 0 12px}.intro{max-width:700px;color:var(--muted);line-height:1.65}.toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin:28px 0 16px}.search{min-width:260px;flex:1;max-width:430px;background:var(--card);border:1px solid var(--line);color:var(--text);padding:12px 14px;border-radius:5px}.search:focus{border-color:var(--primary2)}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:transparent;color:var(--muted);padding:8px 12px;border-radius:4px;font-size:.78rem}.chip.active,.chip:hover{border-color:var(--primary);color:var(--primary2);background:rgba(244,63,94,.1)}button:disabled{opacity:.5;cursor:wait}.player{margin:0 0 28px;background:#000;border:1px solid var(--line);border-radius:7px;overflow:hidden}.player-head{display:flex;align-items:center;gap:10px;background:var(--card);padding:12px 15px}.player-title{min-width:0;flex:1;text-align:right;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.back{border:0;background:none;color:var(--muted);font-size:.85rem;white-space:nowrap}.back:hover{color:var(--primary2)}.zap{flex:0 0 32px;border:1px solid var(--line);background:transparent;color:var(--muted);width:32px;height:32px;border-radius:4px}.zap:hover{color:var(--text);border-color:var(--primary)}.stage{position:relative;background:#000}video{display:block;width:100%;aspect-ratio:16/9;background:#000}.overlay{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;pointer-events:none;transition:opacity .2s}.overlay.dim{background:rgba(0,0,0,.8)}.overlay.off{opacity:0;visibility:hidden}.overlay .msg{font-size:.85rem;color:var(--muted);margin-top:10px}.overlay button{pointer-events:auto;margin-top:12px;border:1px solid var(--primary);background:rgba(244,63,94,.12);color:var(--primary2);padding:7px 14px;border-radius:4px;font-size:.8rem}.spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:var(--primary2);animation:sp .8s linear infinite;margin:auto}@keyframes sp{to{transform:rotate(360deg)}}.player-meta{padding:11px 15px;color:var(--muted);font-size:.78rem;overflow-wrap:anywhere}.player-meta b{color:var(--text)}.notice{border:1px solid var(--line);background:rgba(23,29,39,.75);padding:11px 13px;border-radius:5px;color:var(--muted);font-size:.78rem;margin-bottom:16px;overflow-wrap:anywhere}.notice p{margin:4px 0}.hidden{display:none!important}.status{color:var(--muted);padding:35px 0;text-align:center}.count{color:var(--muted);font-size:.78rem;margin:0 0 13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.channel{padding:0;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:5px;overflow:hidden;transition:border-color .2s;content-visibility:auto;contain-intrinsic-size:0 170px}.channel:hover,.channel.active{border-color:var(--primary)}.thumb{position:relative;aspect-ratio:16/9;background:#050609;display:grid;place-items:center;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:contain;padding:12px}.fallback{font-size:1.8rem;font-weight:700;color:#475569}.live,.provider{position:absolute;top:8px;background:rgba(0,0,0,.75);padding:4px 7px;border-radius:3px;font-size:.62rem}.live{left:8px;color:#fda4af;font-weight:800;text-transform:uppercase}.provider{right:8px;color:#cbd5e1}.channel-body{padding:10px}.channel-name{font-weight:700;font-size:.87rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.group{color:var(--muted);font-size:.72rem;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}footer{border-top:1px solid var(--line);padding:25px 0;color:var(--muted);font-size:.78rem}@media(min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(min-width:900px){.grid{grid-template-columns:repeat(5,minmax(0,1fr))}}@media(min-width:1250px){.grid{grid-template-columns:repeat(6,minmax(0,1fr))}}@media(max-width:560px){.wrap{width:calc(100% - 22px)}.search{min-width:100%;max-width:none}.player-head{gap:6px;padding:10px}.back{font-size:.75rem}.player-title{font-size:.8rem}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><div class="brand">Maruya<span>LiveTV</span></div><button id="refresh" class="chip" type="button">↻ Refresh</button></div></header>
+<main class="wrap">
+  <div class="eyebrow">● Live TV</div>
+  <h1>Live TV Channels</h1>
+  <p class="intro">Browse available Cignal and Converge channels, search by name, filter by group, and play supported streams.</p>
+  <section id="playerSection" class="player hidden" aria-label="Video player">
+    <div class="player-head">
+      <button id="backButton" class="back" type="button">← Back to channels</button>
+      <div id="playerTitle" class="player-title"></div>
+      <button id="prev" class="zap" type="button" aria-label="Previous channel">‹</button>
+      <button id="next" class="zap" type="button" aria-label="Next channel">›</button>
+    </div>
+    <div class="stage"><video id="video" controls playsinline preload="metadata"></video>
+      <div id="overlay" class="overlay off" role="status" aria-live="polite"><div><div class="spin"></div><div id="overlayMsg" class="msg"></div><button id="retry" class="hidden" type="button">Retry</button></div></div>
+    </div>
+    <div id="playerMeta" class="player-meta"></div>
+  </section>
+  <section class="toolbar"><input id="search" class="search" type="search" placeholder="Search channels" aria-label="Search channels"><div id="sourceChips" class="chips"></div></section>
+  <div id="groupChips" class="chips" style="margin-bottom:16px"></div>
+  <div id="errors" class="notice hidden" role="status"></div>
+  <div id="status" class="status">Loading channels…</div>
+  <section id="results" class="hidden"><p id="count" class="count"></p><div id="grid" class="grid"></div><div id="sentinel" style="height:10px"></div></section>
+</main>
+<footer><div class="wrap">MaruyaLiveTV · For personal and authorized viewing.</div></footer>
+
+<script>
+'use strict';
+
+/*
+ * These routes match livetv.js when its Express router is mounted at
+ * /hcgi/api/livetv.
+ *
+ * Cignal:   GET /hcgi/api/livetv/playlist
+ * Converge: GET /hcgi/api/livetv/converge/playlist
+ *
+ * The Converge playlist endpoint already rewrites each channel URL to
+ * /hcgi/api/livetv/converge/stream?u=...
+ * That endpoint rewrites the MPD's media/init templates to the matching
+ * /hcgi/api/livetv/converge/segment endpoint. Do not add another browser
+ * proxy rewrite to those URLs.
+ */
+const ENDPOINTS = {
+  Cignal: '/hcgi/api/livetv/playlist',
+  Converge: '/hcgi/api/livetv/converge/playlist'
+};
+const NAMES = Object.keys(ENDPOINTS);
+const PAGE = 48;
+const TTL = 5 * 60 * 1000;
+
+const state = {
+  byProv: {},
+  source: 'all',
+  group: 'all',
+  query: '',
+  activeId: null,
+  shown: PAGE,
+  failures: {}
+};
+
+let list = [];
+let player = null;
+let playerReady = null;
+let current = null;
+let token = 0;
+let retries = 0;
+let retryTimer = null;
+let searchTimer = null;
+let loadPromise = Promise.resolve();
+let destroyed = false;
+
+const $ = id => document.getElementById(id);
+const video = $('video');
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[c]);
+
+function allChannels() {
+  return NAMES.flatMap(name => state.byProv[name] || []);
+}
+
+function onImgErr(img) {
+  img.onerror = null;
+  img.outerHTML = '<div class="fallback">TV</div>';
+}
+
+function cacheGet(name) {
+  try { return JSON.parse(localStorage.getItem('maruyalivetv:' + name) || 'null'); }
+  catch { return null; }
+}
+function cacheSet(name, data) {
+  try { localStorage.setItem('maruyalivetv:' + name, JSON.stringify({ at: Date.now(), d: data })); }
+  catch {}
+}
+
+function normalizeChannel(c, provider, index) {
+  const url = String(c.url || c.stream || '').trim();
+  const name = String(c.name || c.title || 'Unnamed channel').trim();
+  let clearkey = c.clearkey || null;
+
+  if (typeof clearkey === 'string') {
+    const parts = clearkey.split(':');
+    clearkey = parts.length === 2 ? { kid: parts[0], key: parts[1] } : null;
+  }
+
+  return {
+    ...c,
+    id: String(c.id || provider + ':' + (c.tvgId || name) + ':' + index),
+    name,
+    url,
+    logo: String(c.logo || c.tvgLogo || ''),
+    group: String(c.group || c.groupTitle || 'Other'),
+    source: provider,
+    clearkey
+  };
+}
+
+async function fetchPlaylist(provider, force = false) {
+  const cached = cacheGet(provider);
+  if (!force && cached && Array.isArray(cached.d) && Date.now() - cached.at < TTL) {
+    return cached.d;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(ENDPOINTS[provider], {
+      signal: controller.signal,
+      cache: 'no-store',
+      headers: { Accept: 'application/json' }
+    });
+
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+
+    const data = await response.json();
+    if (!Array.isArray(data.channels)) {
+      throw new Error('Playlist API did not return a channels array');
+    }
+
+    const channels = data.channels
+      .map((c, i) => normalizeChannel(c, provider, i))
+      .filter(c => c.name && c.url);
+
+    cacheSet(provider, channels);
+    return channels;
+  } catch (error) {
+    if (cached && Array.isArray(cached.d)) return cached.d;
+    if (error.name === 'AbortError') throw new Error('Playlist request timed out');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function loadAll(force = false) {
+  $('refresh').disabled = true;
+  $('errors').classList.add('hidden');
+  state.failures = {};
+
+  if (!allChannels().length) {
+    $('status').textContent = 'Loading channels…';
+    $('status').classList.remove('hidden');
+  }
+
+  try {
+    await Promise.all(NAMES.map(async provider => {
+      try {
+        state.byProv[provider] = await fetchPlaylist(provider, force);
+      } catch (error) {
+        state.failures[provider] = error.message || 'Failed to load';
+        state.byProv[provider] = state.byProv[provider] || [];
+      }
+      renderAll();
+    }));
+
+    const failures = Object.keys(state.failures);
+    if (failures.length) {
+      $('errors').innerHTML = failures.map(provider =>
+        '<p>' + esc(provider) + ': ' + esc(state.failures[provider]) + '</p>'
+      ).join('');
+      $('errors').classList.remove('hidden');
+    }
+
+    if (!allChannels().length) {
+      $('status').textContent = 'Could not load channels. Check that the Express API routes are reachable.';
+      $('status').classList.remove('hidden');
+    }
+  } finally {
+    $('refresh').disabled = false;
+    renderAll();
+  }
+}
+
+function groupsFor() {
+  const groups = new Set();
+  allChannels().forEach(c => {
+    if (state.source === 'all' || c.source === state.source) groups.add(c.group || 'Other');
+  });
+  return [...groups].sort((a, b) => a.localeCompare(b));
+}
+
+function renderChips() {
+  $('sourceChips').innerHTML = ['all', ...NAMES].map(source => {
+    const count = source === 'all' ? allChannels().length : (state.byProv[source] || []).length;
+    return '<button class="chip ' + (state.source === source ? 'active' : '') +
+      '" data-s="' + esc(source) + '" type="button">' +
+      (source === 'all' ? 'All providers' : esc(source)) + ' (' + count + ')</button>';
+  }).join('');
+
+  const groups = groupsFor();
+  if (state.group !== 'all' && !groups.includes(state.group)) state.group = 'all';
+
+  $('groupChips').innerHTML = ['all', ...groups].map(group =>
+    '<button class="chip ' + (state.group === group ? 'active' : '') +
+    '" data-g="' + esc(group) + '" type="button">' +
+    (group === 'all' ? 'All groups' : esc(group)) + '</button>'
+  ).join('');
+}
+
+function filterChannels() {
+  const q = state.query.trim().toLowerCase();
+  return allChannels().filter(c =>
+    (state.source === 'all' || c.source === state.source) &&
+    (state.group === 'all' || (c.group || 'Other') === state.group) &&
+    (!q || c.name.toLowerCase().includes(q))
+  );
+}
+
+function cardHTML(c) {
+  const img = c.logo
+    ? '<img loading="lazy" decoding="async" src="' + esc(c.logo) + '" alt="" onerror="onImgErr(this)">'
+    : '<div class="fallback">TV</div>';
+
+  return '<button class="channel ' + (c.id === state.activeId ? 'active' : '') +
+    '" data-id="' + esc(c.id) + '" type="button"><div class="thumb">' + img +
+    '<span class="live">● Live</span><span class="provider">' + esc(c.source) +
+    '</span></div><div class="channel-body"><div class="channel-name">' + esc(c.name) +
+    '</div><div class="group">' + esc(c.group) + '</div></div></button>';
+}
+
+function renderGrid() {
+  list = filterChannels();
+  const hasChannels = allChannels().length > 0;
+
+  $('results').classList.toggle('hidden', !hasChannels);
+  $('status').classList.toggle('hidden', hasChannels);
+  $('count').textContent = list.length + ' channel' + (list.length === 1 ? '' : 's');
+
+  $('grid').innerHTML = list.length
+    ? list.slice(0, state.shown).map(cardHTML).join('')
+    : '<div class="status" style="grid-column:1/-1">No channels match your search or filters.</div>';
+}
+
+function renderAll() {
+  renderChips();
+  renderGrid();
+}
+function resetPaging() {
+  state.shown = PAGE;
+  renderGrid();
+}
+
+const observer = new IntersectionObserver(entries => {
+  if (!entries[0].isIntersecting || state.shown >= list.length) return;
+  const start = state.shown;
+  state.shown += PAGE;
+  $('grid').insertAdjacentHTML('beforeend', list.slice(start, state.shown).map(cardHTML).join(''));
+}, { rootMargin: '600px' });
+observer.observe($('sentinel'));
+
+$('sourceChips').addEventListener('click', event => {
+  const button = event.target.closest('[data-s]');
+  if (!button) return;
+  state.source = button.dataset.s;
+  state.group = 'all';
+  resetPaging();
+  renderChips();
+});
+$('groupChips').addEventListener('click', event => {
+  const button = event.target.closest('[data-g]');
+  if (!button) return;
+  state.group = button.dataset.g;
+  resetPaging();
+  renderChips();
+});
+$('grid').addEventListener('click', event => {
+  const button = event.target.closest('[data-id]');
+  if (!button) return;
+  const channel = allChannels().find(c => c.id === button.dataset.id);
+  if (channel) play(channel);
+});
+$('search').addEventListener('input', event => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    state.query = event.target.value;
+    resetPaging();
+  }, 150);
+});
+$('refresh').addEventListener('click', () => loadAll(true));
+
+/* Player configuration */
+const CONFIG = {
+  streaming: {
+    bufferingGoal: 20,
+    rebufferingGoal: 2,
+    bufferBehind: 30,
+    retryParameters: {
+      maxAttempts: 4, baseDelay: 500, backoffFactor: 1.6,
+      fuzzFactor: 0.4, timeout: 15000
+    }
+  },
+  manifest: {
+    retryParameters: {
+      maxAttempts: 3, baseDelay: 500, backoffFactor: 1.8,
+      fuzzFactor: 0.4, timeout: 15000
+    }
+  },
+  abr: { enabled: true, switchInterval: 6 }
+};
+
+function showOverlay(mode, message = '', showRetry = false) {
+  $('overlay').className = 'overlay ' +
+    (mode === 'loading' || mode === 'error' ? 'dim' : mode === 'buffer' ? '' : 'off');
+  $('overlayMsg').textContent = message;
+  $('retry').classList.toggle('hidden', !showRetry);
+  const spinner = document.querySelector('.spin');
+  if (spinner) spinner.style.display = mode === 'error' ? 'none' : '';
+}
+
+async function ensurePlayer() {
+  if (player) return true;
+  if (playerReady) return playerReady;
+
+  playerReady = (async () => {
+    if (!window.shaka) {
+      showOverlay('error', 'Shaka Player failed to load. Check your connection.', true);
+      return false;
+    }
+
+    shaka.polyfill.installAll();
+    if (!shaka.Player.isBrowserSupported()) {
+      showOverlay('error', 'This browser does not support Shaka Player.', true);
+      return false;
+    }
+
+    const instance = new shaka.Player();
+    await instance.attach(video);
+
+    if (destroyed) {
+      await instance.destroy();
+      return false;
+    }
+
+    instance.configure(CONFIG);
+
+    // IMPORTANT: Do not rewrite Converge URLs here. The backend playlist
+    // already points at /converge/stream, and the MPD rewrite points every
+    // media/init segment at /converge/segment.
+    instance.addEventListener('buffering', event => {
+      if (!current) return;
+      showOverlay(event.buffering ? 'buffer' : 'off', event.buffering ? 'Buffering…' : '');
+    });
+
+    instance.addEventListener('error', event => {
+      if (!current) return;
+      const error = event.detail;
+      if (error && error.severity === shaka.util.Error.Severity.RECOVERABLE) return;
+      handlePlaybackError(error && error.message ? error.message : 'Playback failed.');
+    });
+
+    player = instance;
+    return true;
+  })();
+
+  try {
+    return await playerReady;
+  } catch (error) {
+    console.error('Player initialization failed:', error);
+    playerReady = null;
+    showOverlay('error', 'Could not initialize the player.', true);
+    return false;
+  }
+}
+
+function handlePlaybackError(message) {
+  if (!current) return;
+
+  if (retries < 3) {
+    retries++;
+    const expectedToken = token;
+    showOverlay('loading', message + ' Retrying (' + retries + '/3)…');
+    clearTimeout(retryTimer);
+
+    retryTimer = setTimeout(() => {
+      if (expectedToken === token && current) load();
+    }, 1000 * Math.pow(2, retries - 1));
+  } else {
+    showOverlay('error', message + ' Check the manifest, proxy routes, CORS and network.', true);
+  }
+}
+
+async function load() {
+  if (!current) return;
+
+  const myToken = token;
+  const channel = current;
+  clearTimeout(retryTimer);
+  showOverlay('loading', 'Loading live stream…');
+
+  try {
+    const ready = await ensurePlayer();
+    if (!ready || myToken !== token || current !== channel) return;
+
+    const previous = loadPromise;
+    const operation = (async () => {
+      try { await previous; } catch {}
+
+      if (myToken !== token || current !== channel) return;
+
+      // livetv.js intentionally removes ClearKey from its Converge channel
+      // objects. Only configure a key if this API response supplies one.
+      const drm = {};
+      const ck = channel.clearkey;
+
+      if (ck && ck.kid && ck.key) {
+        drm.clearKeys = {
+          [String(ck.kid).replace(/-/g, '')]: String(ck.key).replace(/-/g, '')
+        };
+      }
+
+      player.configure({ drm });
+
+      // For Converge this is already the same-origin manifest proxy URL.
+      // Do not wrap it in /proxycon.php or encode it a second time.
+      const streamUrl = new URL(channel.url, location.href).href;
+      await player.load(streamUrl);
+
+      if (myToken !== token || current !== channel) {
+        await player.unload().catch(() => {});
+        return;
+      }
+
+      retries = 0;
+      showOverlay('off');
+
+      try {
+        await video.play();
+      } catch (error) {
+        console.info('Autoplay requires user interaction:', error);
+        showOverlay('buffer', 'Press Play to start the stream.');
+      }
+    })();
+
+    loadPromise = operation;
+    await operation;
+  } catch (error) {
+    if (myToken !== token || current !== channel) return;
+    console.error('Playback error:', error);
+    handlePlaybackError(error.message || 'Could not load this stream.');
+  }
+}
+
+function play(channel) {
+  token++;
+  clearTimeout(retryTimer);
+  current = channel;
+  state.activeId = channel.id;
+  retries = 0;
+
+  $('playerSection').classList.remove('hidden');
+  $('playerTitle').textContent = channel.name;
+  $('playerMeta').innerHTML = 'Now playing: <b>' + esc(channel.name) +
+    '</b> · ' + esc(channel.source) + ' · ' + esc(channel.group || 'Other');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelectorAll('.channel.active').forEach(el => el.classList.remove('active'));
+
+  const card = Array.from($('grid').querySelectorAll('.channel'))
+    .find(el => el.dataset.id === channel.id);
+  if (card) card.classList.add('active');
+
+  load();
+}
+
+function zap(direction) {
+  if (!list.length) return;
+  let index = list.findIndex(c => c.id === state.activeId);
+  if (index < 0) index = 0;
+  play(list[(index + direction + list.length) % list.length]);
+}
+
+$('prev').addEventListener('click', () => zap(-1));
+$('next').addEventListener('click', () => zap(1));
+$('retry').addEventListener('click', () => {
+  retries = 0;
+  load();
+});
+
+$('backButton').addEventListener('click', async () => {
+  token++;
+  clearTimeout(retryTimer);
+  current = null;
+  state.activeId = null;
+  showOverlay('off');
+
+  if (player) {
+    try { await player.unload(); }
+    catch (error) { console.warn('Player unload warning:', error); }
+  }
+
+  $('playerSection').classList.add('hidden');
+  renderGrid();
+});
+
+document.addEventListener('keydown', event => {
+  if (['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
+  if (event.key === 'Escape' && current) $('backButton').click();
+  if (event.key === 'ArrowLeft' && current) zap(-1);
+  if (event.key === 'ArrowRight' && current) zap(1);
+});
+
+window.addEventListener('pagehide', () => {
+  destroyed = true;
+  clearTimeout(retryTimer);
+  clearTimeout(searchTimer);
+  observer.disconnect();
+  if (player) player.destroy().catch(error => console.warn('Player cleanup failed:', error));
+});
+
+loadAll(false);
+</script>
+</body>
+</html>
