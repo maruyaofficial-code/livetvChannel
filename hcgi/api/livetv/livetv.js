@@ -6,7 +6,6 @@ const router = Router();
 const CIGNAL_PLAYLIST_URL = 'https://maruyatvph.com/cignal.m3u';
 const CONVERGE_PLAYLIST_URL = 'https://maruyatvph.com/converge.m3u';
 
-// Node.js 18+ is required for built-in fetch() and Readable.fromWeb().
 const asyncRoute = (handler) => (req, res, next) =>
     Promise.resolve(handler(req, res, next)).catch(next);
 
@@ -49,7 +48,6 @@ const xmlEscape = (s) =>
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 
-// Keep Shaka template variables ($Time$, $Number$, etc.) literal.
 const encodeSeg = (s) => encodeURIComponent(s).replace(/%24/g, '$');
 
 function parsePlaylist(text) {
@@ -129,6 +127,7 @@ async function fetchText(url, label) {
 router.get('/playlist', asyncRoute(async (_req, res) => {
     const { text } = await fetchText(CIGNAL_PLAYLIST_URL, 'Cignal playlist fetch');
     const channels = parsePlaylist(text).map((c) => ({ ...c, source: 'Cignal' }));
+    res.set('Access-Control-Allow-Origin', '*');
     res.set('Cache-Control', 'no-store');
     res.json({ channels, groups: groupsFrom(channels) });
 }));
@@ -139,11 +138,9 @@ router.get('/converge/playlist', asyncRoute(async (_req, res) => {
     const channels = parsePlaylist(text).map((c) => ({
         ...c,
         source: 'Converge',
-        // Browser loads our same-origin proxy, not the original HTTP stream.
         url: `/hcgi/api/livetv/converge/stream?u=${encodeURIComponent(c.url)}`,
-        // This proxy does not expose upstream DRM keys.
-        clearkey: null,
     }));
+    res.set('Access-Control-Allow-Origin', '*');
     res.set('Cache-Control', 'no-store');
     res.json({ channels, groups: groupsFrom(channels) });
 }));
@@ -171,7 +168,6 @@ router.get('/converge/stream', asyncRoute(async (req, res) => {
     const finalUrl = upstream.url || rawUrl;
     validateHttpUrl(finalUrl, 'Final manifest URL');
 
-    // SegmentTemplate URLs are resolved against the final redirected manifest.
     const baseUrl = new URL('.', finalUrl).href;
     const xml = await upstream.text();
 
@@ -202,8 +198,6 @@ router.get('/converge/segment', asyncRoute(async (req, res) => {
     }
 
     validateHttpUrl(base, 'Segment base URL');
-
-    // Resolve relative paths while preserving Shaka's literal template variables.
     const fullUrl = new URL(seg, base).href;
     validateHttpUrl(fullUrl, 'Segment URL');
 
@@ -234,7 +228,6 @@ router.get('/converge/segment', asyncRoute(async (req, res) => {
     }).pipe(res);
 }));
 
-// JSON error handler for errors thrown by the async routes above.
 router.use((err, _req, res, _next) => {
     console.error('[livetv proxy]', err);
     sendUpstreamError(res, err?.message || 'Proxy request failed', 502);
